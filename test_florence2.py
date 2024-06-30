@@ -86,7 +86,7 @@ def draw_polygons(image, prediction, fill_mask=False):
 task_prompt = '<REFERRING_EXPRESSION_SEGMENTATION>'
 text_input = 'A suspended load'
 image_paths = glob('assets/images/*')
-output_dir = 'assets/segments'
+output_dir = 'assets/loads'
 for image_path in image_paths[2:]:
     print(image_path)
     image = Image.open(image_path)

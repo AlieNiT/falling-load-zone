@@ -4,3 +4,4 @@ transformers
 opencv-python
 matplotlib
 numpy
+ultralytics
