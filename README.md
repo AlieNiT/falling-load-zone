@@ -18,3 +18,20 @@ TODO
 # Results
 
 All of the results can be seen in `assets/outputs`.
+
+### Example of a risky position:
+
+![risky position](assets/images/Default_A_small_crane_holding_a_suspended_load_above_the_groun_3.jpg "Risky Position")
+
+Output of the pipeline:
+![risky position](assets/outputs/Default_A_small_crane_holding_a_suspended_load_above_the_groun_3.png "Risky Position")
+
+### Example of a safe position:
+
+![safe position](assets/images/Default_A_small_crane_holding_a_suspended_load_above_the_groun_3%20(1).jpg "Risky Position")
+
+Output of the pipeline:
+![safe position](assets/outputs/Default_A_small_crane_holding_a_suspended_load_above_the_groun_3%20(1).png "Risky Position")
+
+# Future Works
+TODO
