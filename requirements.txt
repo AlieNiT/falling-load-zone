@@ -5,3 +5,6 @@ opencv-python
 matplotlib
 numpy
 ultralytics
+timm
+einops
+flash_attn
