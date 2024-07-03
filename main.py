@@ -19,7 +19,10 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
 image_paths = glob('assets/images/*')
 mask_paths = set(glob('assets/ground/*'))
-
+IoUs = {
+    'people': [],
+    'load': []
+}
 # Load the image
 for image_path in image_paths:
     image_name = os.path.basename(image_path).split('.')[0]
@@ -77,7 +80,7 @@ for image_path in image_paths:
 
 
     plane = fit_ground(XYZ)
-    print(plane)
+    # print(plane)
 
     person_XYZ = XYZ[person_mask]
     projected_person_XYZ = project_points_to_plane(person_XYZ, plane)
@@ -90,6 +93,7 @@ for image_path in image_paths:
             projected_person_mask[y, x] = 255
 
     projected_person_mask = cv2.erode(projected_person_mask, np.ones((3, 3), np.uint8), iterations=1)
+    projected_person_mask = cv2.dilate(projected_person_mask, np.ones((3, 3), np.uint8), iterations=1)
     projected_person_mask = projected_person_mask.astype(bool)
 
 
@@ -117,6 +121,7 @@ for image_path in image_paths:
 
 
     projected_load_mask = cv2.erode(projected_load_mask, np.ones((3, 3), np.uint8), iterations=1)
+    projected_load_mask = cv2.dilate(projected_load_mask, np.ones((3, 3), np.uint8), iterations=1)
     projected_load_mask = projected_load_mask.astype(bool)
     projected_load_xy = np.array(np.where(projected_load_mask)).T[:, ::-1]
     hull = cv2.convexHull(projected_load_xy)
@@ -126,12 +131,21 @@ for image_path in image_paths:
 
     show_image[projected_person_mask] = projected_person_color
 
+    # cv2.imshow('image', cv2.cvtColor(show_image, cv2.COLOR_BGR2RGB))
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    cv2.imwrite(f'assets/outputs/{image_name}.png', cv2.cvtColor(show_image, cv2.COLOR_RGB2BGR))
+    
+    if not os.path.exists(f'assets/label_masks/{image_name}_people.jpg'):
+        continue
+    print(f'Processing {image_name}')
+
     # load ground truth for person and load
-    ground_person_mask = cv2.imread(f'assets/label_masks/{image_name}_people.png')
+    ground_person_mask = cv2.imread(f'assets/label_masks/{image_name}_people.jpg')
     ground_person_mask = cv2.cvtColor(ground_person_mask, cv2.COLOR_BGR2GRAY)
     ground_person_mask = ground_person_mask.astype(bool)
 
-    ground_load_mask = cv2.imread(f'assets/label_masks/{image_name}_load.png')
+    ground_load_mask = cv2.imread(f'assets/label_masks/{image_name}_load.jpg')
     ground_load_mask = cv2.cvtColor(ground_load_mask, cv2.COLOR_BGR2GRAY)
     ground_load_mask = ground_load_mask.astype(bool)
 
@@ -139,10 +153,12 @@ for image_path in image_paths:
     person_iou = IoU(projected_person_mask, ground_person_mask)
     load_iou = IoU(projected_load_mask, ground_load_mask)
 
-    print(f'Image: {image_name}\n\tPerson IoU: {person_iou}\n\tLoad IoU: {load_iou}')
+    print(f'\tPerson IoU: {person_iou}\n\tLoad IoU: {load_iou}')
+    IoUs['people'].append(person_iou)
+    IoUs['load'].append(load_iou)
 
-
-    # cv2.imshow('image', cv2.cvtColor(show_image, cv2.COLOR_BGR2RGB))
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-    cv2.imwrite(f'assets/outputs/{image_name}.png', cv2.cvtColor(show_image, cv2.COLOR_RGB2BGR))
+# mean IoU
+people_iou = np.array([iou for iou in IoUs['people'] if not math.isnan(iou)])
+load_iou = np.array([iou for iou in IoUs['load'] if not math.isnan(iou)])
+print(f'Mean Person IoU: {np.mean(people_iou)}')
+print(f'Mean Load IoU: {np.mean(load_iou)}')

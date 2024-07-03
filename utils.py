@@ -49,11 +49,11 @@ def fit_ground_single(XYZ, p):
     px, py = p
     candidates = XYZ[py-20:py+20, px-50:px+50].reshape((-1, 3))
     for i in range(5):
-        print(candidates.shape)
+        # print(candidates.shape)
         if len(candidates) > 5000:
             candidates = candidates[np.random.choice(len(candidates), 5000, replace=False)]
         plane = fit_plane_to_points(candidates)
-        print(plane)
+        # print(plane)
         dist = distance_to_plane(XYZ, plane)
         dist_filter = dist < 0.1 / 2**i
         candidates = XYZ[dist_filter]
